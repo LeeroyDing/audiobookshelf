@@ -109,6 +109,12 @@
           </div>
           <ui-range-input v-model="ereaderSettings.textStroke" :min="0" :max="300" :step="5" @input="settingsUpdated" />
         </div>
+                <div class="flex items-center mb-4">
+          <div class="w-40">
+            <p class="text-lg">{{ $strings.LabelLayout }}:</p>
+          </div>
+          <ui-toggle-btns v-model="ereaderSettings.flow" :items="flowItems" @input="settingsUpdated" />
+        </div>
         <div class="flex items-center">
           <div class="w-40">
             <p class="text-lg">{{ $strings.LabelLayout }}:</p>
@@ -143,6 +149,7 @@ export default {
         lineSpacing: 115,
         fontBoldness: 100,
         spread: 'auto',
+        flow: 'paginated',
         textStroke: 0
       }
     }
@@ -166,6 +173,18 @@ export default {
     ereaderTheme() {
       if (this.isEpub) return this.ereaderSettings.theme
       return 'dark'
+    },
+    flowItems() {
+      return [
+        {
+          text: this.$strings.LabelLayoutPaginated,
+          value: 'paginated'
+        },
+        {
+          text: this.$strings.LabelLayoutVerticalScroll,
+          value: 'scrolled-continuous'
+        }
+      ]
     },
     spreadItems() {
       return [

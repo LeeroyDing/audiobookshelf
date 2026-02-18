@@ -1,13 +1,13 @@
 <template>
   <div id="epub-reader" class="h-full w-full">
     <div class="h-full flex items-center justify-center">
-      <button type="button" aria-label="Previous page" class="w-24 max-w-24 h-full hidden sm:flex items-center overflow-x-hidden justify-center opacity-50 hover:opacity-100">
+      <button type="button" aria-label="Previous page" class="w-24 max-w-24 h-full hidden sm:flex items-center overflow-x-hidden justify-center opacity-50 hover:opacity-100" :class="{ 'sm:!hidden': ereaderSettings.flow === 'scrolled-continuous' }">
         <span v-if="hasPrev" class="material-symbols text-6xl" @mousedown.prevent @click="prev">chevron_left</span>
       </button>
       <div id="frame" class="w-full" style="height: 80%">
         <div id="viewer"></div>
       </div>
-      <button type="button" aria-label="Next page" class="w-24 max-w-24 h-full hidden sm:flex items-center justify-center overflow-x-hidden opacity-50 hover:opacity-100">
+      <button type="button" aria-label="Next page" class="w-24 max-w-24 h-full hidden sm:flex items-center justify-center overflow-x-hidden opacity-50 hover:opacity-100" :class="{ 'sm:!hidden': ereaderSettings.flow === 'scrolled-continuous' }">
         <span v-if="hasNext" class="material-symbols text-6xl" @mousedown.prevent @click="next">chevron_right</span>
       </button>
     </div>
@@ -47,6 +47,7 @@ export default {
         fontScale: 100,
         lineSpacing: 115,
         spread: 'auto',
+        flow: 'paginated',
         textStroke: 0
       }
     }
@@ -144,6 +145,13 @@ export default {
       this.rendition.themes.fontSize(`${fontScale}%`)
       this.rendition.themes.font(settings.font)
       this.rendition.spread(settings.spread || 'auto')
+
+      if (settings.flow) {
+        this.rendition.flow(settings.flow)
+        if (settings.flow === 'scrolled-continuous') {
+          this.rendition.manager.container.style.overflowY = 'auto'
+        }
+      }
     },
     prev() {
       if (!this.rendition?.manager) return
@@ -341,10 +349,10 @@ export default {
         width: this.readerWidth,
         height: this.readerHeight * 0.8,
         allowScriptedContent: this.allowScriptedContent,
-        spread: 'auto',
-        snap: true,
-        manager: 'continuous',
-        flow: 'paginated'
+        spread: this.ereaderSettings.spread || 'auto',
+        flow: this.ereaderSettings.flow || 'paginated',
+        manager: this.ereaderSettings.flow === 'scrolled-continuous' ? 'continuous' : 'default',
+        snap: this.ereaderSettings.flow !== 'scrolled-continuous'
       })
 
       // load saved progress
